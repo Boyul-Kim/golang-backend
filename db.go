@@ -19,7 +19,7 @@ type mongo_db struct {
 }
 
 type User struct {
-	name string
+	Name string
 }
 
 func setupDB() mongo_db {
@@ -48,7 +48,8 @@ func setupDB() mongo_db {
 	collection := client.Database("cofi-lite").Collection("users")
 	fmt.Println("Collection type:", reflect.TypeOf(collection))
 
-	cursor, err := collection.Find(ctx, bson.M{})
+	// Find all
+	cursor, err := collection.Find(ctx, bson.D{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,12 +57,21 @@ func setupDB() mongo_db {
 	defer cursor.Close(ctx)
 
 	for cursor.Next(ctx) {
-		var results bson.M //User struct not working. why?
+		var results User
 		if err = cursor.Decode(&results); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println("RESULTS", results)
 	}
+
+	// var results User
+	// err = collection.FindOne(ctx, bson.D{{"name", "saitama"}}).Decode(&results)
+	// if err != nil {
+	// 	fmt.Println("Error calling FindOne():", err)
+	// 	os.Exit(1)
+	// } else {
+	// 	fmt.Println("FindOne() result:", results.Name)
+	// }
 
 	return dbConnection
 }
@@ -79,7 +89,7 @@ func (m mongo_db) getUser() {
 		os.Exit(1)
 	} else {
 		fmt.Println("FindOne() result:", results)
-		fmt.Println("FindOne() Name:", results.name)
+		fmt.Println("FindOne() Name:", results.Name)
 	}
 
 	fmt.Println("RESULTS", results)
