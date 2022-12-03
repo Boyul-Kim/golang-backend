@@ -101,7 +101,7 @@ func setupRouter() *gin.Engine {
 func main() {
 	database := setupDB()
 	fmt.Println("DATABASE CONNECTION ESTABLISHED", database)
-	// database.getUser()
+	database.getUser()
 	r := setupRouter()
 	// Listen and Server in 0.0.0.0:8080
 	r.Run(":8080")

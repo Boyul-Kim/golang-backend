@@ -14,15 +14,15 @@ import (
 )
 
 type mongo_db struct {
-	connection *mongo.Client
-	ctx        context.Context
+	client *mongo.Client
+	ctx    context.Context
 }
 
 type User struct {
 	Name string
 }
 
-func setupDB() mongo_db {
+func setupDB() *mongo_db {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017/"))
 	if err != nil {
 		log.Fatal(err)
@@ -34,36 +34,37 @@ func setupDB() mongo_db {
 		log.Fatal(err)
 	}
 
-	defer client.Disconnect(ctx)
+	// defer client.Disconnect(ctx)
 
 	databases, err := client.ListDatabaseNames(ctx, bson.M{})
 
 	fmt.Println("DATABASES", databases)
 
 	dbConnection := mongo_db{
-		connection: client,
-		ctx:        ctx,
+		client: client,
+		ctx:    ctx,
 	}
 
 	collection := client.Database("cofi-lite").Collection("users")
 	fmt.Println("Collection type:", reflect.TypeOf(collection))
 
 	// Find all
-	cursor, err := collection.Find(ctx, bson.D{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	// cursor, err := collection.Find(ctx, bson.D{})
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	defer cursor.Close(ctx)
+	// defer cursor.Close(ctx)
 
-	for cursor.Next(ctx) {
-		var results User
-		if err = cursor.Decode(&results); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println("RESULTS", results)
-	}
+	// for cursor.Next(ctx) {
+	// 	var results User
+	// 	if err = cursor.Decode(&results); err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	fmt.Println("RESULTS", results)
+	// }
 
+	//Fine one
 	// var results User
 	// err = collection.FindOne(ctx, bson.D{{"name", "saitama"}}).Decode(&results)
 	// if err != nil {
@@ -73,23 +74,21 @@ func setupDB() mongo_db {
 	// 	fmt.Println("FindOne() result:", results.Name)
 	// }
 
-	return dbConnection
+	return &dbConnection
 }
 
-func (m mongo_db) getUser() {
-	collection := m.connection.Database("cofi-lite").Collection("users")
-	fmt.Println("Collection type:", reflect.TypeOf(collection))
+func (m *mongo_db) getUser() {
+	collection := m.client.Database("cofi-lite").Collection("users")
+	fmt.Println("Collection type:", reflect.TypeOf(collection), collection)
 
 	var results User
-
-	err := collection.FindOne(context.TODO(), bson.D{}).Decode(&results)
-
+	err := collection.FindOne(m.ctx, bson.D{{"name", "saitama"}}).Decode(&results)
+	fmt.Println("COLLECTION", err)
 	if err != nil {
 		fmt.Println("Error calling FindOne():", err)
 		os.Exit(1)
 	} else {
-		fmt.Println("FindOne() result:", results)
-		fmt.Println("FindOne() Name:", results.Name)
+		fmt.Println("FindOne() result:", results.Name)
 	}
 
 	fmt.Println("RESULTS", results)
