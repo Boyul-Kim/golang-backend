@@ -1,4 +1,4 @@
-module go
+module golang-backend
 
 go 1.19
 
