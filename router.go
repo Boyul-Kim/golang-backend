@@ -53,6 +53,12 @@ func setupRouter() *gin_router {
 		c.String(http.StatusOK, "heyah")
 	})
 
+	r.GET("/hello/interpreter", func(c *gin.Context) {
+		hello := helloWorld()
+
+		c.String(http.StatusOK, hello)
+	})
+
 	// Get user value
 	r.GET("/user/:name", func(c *gin.Context) {
 		user := c.Params.ByName("name")
